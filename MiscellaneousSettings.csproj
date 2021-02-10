@@ -6,25 +6,25 @@
 
   <ItemGroup>
     <Reference Include="BepInEx">
-      <HintPath>Libraries/BepInEx.dll</HintPath>
+      <HintPath>Libraries\BepInEx.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>Libraries/Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\..\Steam\steamapps\common\Poly Bridge 2\Poly Bridge 2_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="HarmonyX">
-      <HintPath>Libraries/0Harmony.dll</HintPath>
+      <HintPath>Libraries\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx.Harmony">
-      <HintPath>Libraries/BepInEx.Harmony.dll</HintPath>
+      <HintPath>Libraries\BepInEx.Harmony.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>Libraries/UnityEngine.dll</HintPath>
+      <HintPath>Libraries\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>Libraries/UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>Libraries\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="PolyTechFramework">
-      <HintPath>Libraries/PolyTechFramework.dll</HintPath>
+      <HintPath>Libraries\PolyTechFramework.dll</HintPath>
     </Reference>
   </ItemGroup>
 

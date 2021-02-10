@@ -17,7 +17,7 @@ using static SandboxInputField;
 
 namespace MiscellaneousSettings
 {
-    [BepInPlugin("polytech.miscellaneous_settings", "Miscellaneous Settings Mod", "1.1.0")]
+    [BepInPlugin("polytech.miscellaneous_settings", "Miscellaneous Settings Mod", "1.2.0")]
     [BepInProcess("Poly Bridge 2")]
     [BepInDependency(PolyTechMain.PluginGuid, BepInDependency.DependencyFlags.HardDependency)]
     public class MiscellaneousSettings : PolyTechMod
@@ -26,8 +26,8 @@ namespace MiscellaneousSettings
         public void Awake()
         {
             int order = 0;
-            base.Config.Bind<bool>(MiscellaneousSettings.EnabledDef, false, new ConfigDescription("Enable/Disable", null, new ConfigurationManagerAttributes { Order = order }));
-            MiscellaneousSettings.EnabledToggle = (ConfigEntry<bool>)base.Config[MiscellaneousSettings.EnabledDef];
+            base.Config.Bind<bool>(MiscellaneousSettings.EnabledToggleDef, false, new ConfigDescription("Enable/Disable", null, new ConfigurationManagerAttributes { Order = order }));
+            MiscellaneousSettings.EnabledToggle = (ConfigEntry<bool>)base.Config[MiscellaneousSettings.EnabledToggleDef];
             order--;
 
             base.Config.Bind<float>(MiscellaneousSettings.MaxMassDef, 1000f, new ConfigDescription("Set Max Vehicle Mass", null, new ConfigurationManagerAttributes { Order = order }));
@@ -102,25 +102,63 @@ namespace MiscellaneousSettings
             MiscellaneousSettings.MinFlagPoleHeight = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MinFlagPoleHeightDef];
             order--;
 
+            //Can't figure out how to make this work, will un-comment if I ever get it working
+            //base.Config.Bind<float>(MiscellaneousSettings.MaxShapeMassDef, 500f, new ConfigDescription("Set Max Custom Shape Mass", null, new ConfigurationManagerAttributes { Order = order }));
+            //MiscellaneousSettings.TrueMaxShapeMass = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxShapeMassDef];
+            //order--;
+
+            //base.Config.Bind<float>(MiscellaneousSettings.MinShapeMassDef, 1f, new ConfigDescription("Set Min Custom Shape Mass", null, new ConfigurationManagerAttributes { Order = order }));
+            //MiscellaneousSettings.TrueMinShapeMass = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MinShapeMassDef];
+            //order--;
+
+            //base.Config.Bind<float>(MiscellaneousSettings.MaxPinMotorStrengthDef, 1000f, new ConfigDescription("Set Max Static Pin Motor Strength", null, new ConfigurationManagerAttributes { Order = order }));
+            //MiscellaneousSettings.MaxPinMotorStrength = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxPinMotorStrengthDef];
+            //order--;
+
+            //base.Config.Bind<float>(MiscellaneousSettings.MaxPinTargetVelocityDef, 1000f, new ConfigDescription("Set Max Static Pin Target Velocity", null, new ConfigurationManagerAttributes { Order = order }));
+            //MiscellaneousSettings.MaxPinTargetVelocity = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxPinTargetVelocityDef];
+            //order--;
+
             new Harmony("polytech.miscellaneous_settings").PatchAll(Assembly.GetExecutingAssembly());
 
             this.isCheat = false;
-            this.isEnabled = MiscellaneousSettings.EnabledToggle.Value;
+
+            EnabledToggle.SettingChanged += onEnableDisable;
+
+            this.authors = new string[] {"Mason (MasonatorRoblox)"};
 
             PolyTechMain.registerMod(this);
-
-            base.Config.SettingChanged += delegate(object o, SettingChangedEventArgs e)
-			{
-                onEnableDisable();
-				MiscellaneousSettings.UpdateValuesIGuess();
-			};
         }
 
-        public void onEnableDisable()
-		{
-			this.isEnabled = MiscellaneousSettings.EnabledToggle.Value;
-		}
-        internal static void UpdateValuesIGuess()
+        public void onEnableDisable(object sender, EventArgs e)
+        {
+            MiscellaneousSettings.UpdateValues();
+            this.isEnabled = EnabledToggle.Value;
+
+            if (EnabledToggle.Value)
+            {
+                enableMod();
+            }
+            else
+            {
+                disableMod();
+            }
+        }
+
+        public override void enableMod() 
+        {
+            EnabledToggle.Value = true;
+        }
+
+        public override void disableMod() 
+        {
+            EnabledToggle.Value = false;
+        }
+
+        public override string getSettings() { return ""; }
+        public override void setSettings(string settings) { }
+
+        internal static void UpdateValues()
         {
             bool flag = !MiscellaneousSettings.EnabledToggle.Value || !PolyTechMain.modEnabled.Value;
             if (flag)
@@ -143,6 +181,10 @@ namespace MiscellaneousSettings
                 Pillars.MAX_HEIGHT = GameSettings.WorldMaxY() - 50f;
                 Pillars.MIN_HEIGHT = 1f;
                 VehicleStopTriggers.MIN_POLE_HEIGHT = 0.75f;
+                //CustomShapes.MAX_MASS = 2000f;
+                //CustomShapes.MIN_MASS = 4f;
+				//CustomShapes.MAX_PIN_MOTOR_STRENGTH = 1000f;
+				//CustomShapes.MAX_PIN_TARGET_VELOCITY = 1000f;
             }
             else
             {
@@ -158,7 +200,7 @@ namespace MiscellaneousSettings
                         MiscellaneousSettings.MinMass.Value = 0;
                     }
                 }
-                if (MiscellaneousSettings.MaxSpeed.Value > MiscellaneousSettings.MinSpeed.Value)
+                if (MiscellaneousSettings.MaxSpeed.Value > MiscellaneousSettings.MinSpeed.Value && MiscellaneousSettings.MinSpeed.Value >= 0)
                 {
                     Vehicles.MAX_SPEED = MiscellaneousSettings.MaxSpeed.Value;
                     if (MiscellaneousSettings.MinSpeed.Value >= 0)
@@ -227,10 +269,29 @@ namespace MiscellaneousSettings
                     Pillars.MIN_HEIGHT = MiscellaneousSettings.MinPillarHeight.Value;
                 }
                 VehicleStopTriggers.MIN_POLE_HEIGHT = MiscellaneousSettings.MinFlagPoleHeight.Value;
+                //if (MiscellaneousSettings.TrueMaxShapeMass.Value > MiscellaneousSettings.TrueMinShapeMass.Value && MiscellaneousSettings.TrueMinShapeMass.Value >= 0)
+                //{
+                //    MiscellaneousSettings.__ReadMaxShapeMass = MiscellaneousSettings.TrueMaxShapeMass.Value * 4;
+                //    CustomShapes.MAX_MASS = MiscellaneousSettings.__ReadMaxShapeMass;
+                //    MiscellaneousSettings.__ReadMinShapeMass = MiscellaneousSettings.TrueMinShapeMass.Value * 4;
+                //    CustomShapes.MIN_MASS = MiscellaneousSettings.__ReadMinShapeMass;     
+                //}
+                //else
+                //{
+                //    MiscellaneousSettings.TrueMinShapeMass.Value = 0;
+                //}
+                //if (MiscellaneousSettings.MaxPinMotorStrength.Value >= 0)
+                //{
+                //    CustomShapes.MAX_PIN_MOTOR_STRENGTH = MiscellaneousSettings.MaxPinMotorStrength.Value;
+                //}
+                //if (MiscellaneousSettings.MaxPinTargetVelocity.Value >= 0)
+                //{
+                //    CustomShapes.MAX_PIN_TARGET_VELOCITY = MiscellaneousSettings.MaxPinTargetVelocity.Value;
+                //}
             }
         }
-        //Stuff at the end i guess
-        public static ConfigDefinition EnabledDef = new ConfigDefinition("Enable/Disable", "Enable/Disable");
+        //Stuff at the end I guess
+        public static ConfigDefinition EnabledToggleDef = new ConfigDefinition("Enable/Disable", "Enable/Disable");
         public static ConfigEntry<bool> EnabledToggle;
         public static ConfigDefinition MaxMassDef = new ConfigDefinition("Vehicles", "Max Mass");
         public static ConfigEntry<float> MaxMass;
@@ -268,6 +329,16 @@ namespace MiscellaneousSettings
         public static ConfigEntry<float> MinPillarHeight;
         public static ConfigDefinition MinFlagPoleHeightDef = new ConfigDefinition("Flags", "Min Flag Pole Height");
         public static ConfigEntry<float> MinFlagPoleHeight;
+        //public static ConfigDefinition MaxShapeMassDef = new ConfigDefinition("Custom Shapes", "Max Custom Shape Mass");
+        //public static ConfigEntry<float> TrueMaxShapeMass;
+        //public static float __ReadMaxShapeMass;
+        //public static ConfigDefinition MinShapeMassDef = new ConfigDefinition("Custom Shapes", "Min Custom Shape Mass");
+        //public static ConfigEntry<float> TrueMinShapeMass;
+        //public static float __ReadMinShapeMass;
+        //public static ConfigDefinition MaxPinMotorStrengthDef = new ConfigDefinition("Custom Shapes", "Max Static Pin Motor Strength");
+        //public static ConfigEntry<float> MaxPinMotorStrength;
+        //public static ConfigDefinition MaxPinTargetVelocityDef = new ConfigDefinition("Custom Shapes", "Max Static Pin Target Velocity");
+        //public static ConfigEntry<float> MaxPinTargetVelocity;
 
         #pragma warning disable 0169, 0414, 0649
         internal sealed class ConfigurationManagerAttributes
