@@ -1,23 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
+using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using BepInEx;
 using BepInEx.Configuration;
-using BepInEx.Logging;
 using HarmonyLib;
-using UnityEngine;
 using PolyTechFramework;
-using static Vehicles;
-using static Platforms;
-using static SandboxInputField;
 
 namespace MiscellaneousSettings
 {
-    [BepInPlugin("polytech.miscellaneous_settings", "Miscellaneous Settings Mod", "1.2.0")]
+    [BepInPlugin("polytech.miscellaneous_settings", "Miscellaneous Settings Mod", "1.2.1")]
     [BepInProcess("Poly Bridge 2")]
     [BepInDependency(PolyTechMain.PluginGuid, BepInDependency.DependencyFlags.HardDependency)]
     public class MiscellaneousSettings : PolyTechMod
@@ -26,141 +16,126 @@ namespace MiscellaneousSettings
         public void Awake()
         {
             int order = 0;
-            base.Config.Bind<bool>(MiscellaneousSettings.EnabledToggleDef, false, new ConfigDescription("Enable/Disable", null, new ConfigurationManagerAttributes { Order = order }));
-            MiscellaneousSettings.EnabledToggle = (ConfigEntry<bool>)base.Config[MiscellaneousSettings.EnabledToggleDef];
+            base.Config.Bind<bool>(MiscellaneousSettings.ModEnabledDef, true, new ConfigDescription("Enable/Disable", null, new ConfigurationManagerAttributes { Order = order }));
+            MiscellaneousSettings.ModEnabled = (ConfigEntry<bool>)base.Config[MiscellaneousSettings.ModEnabledDef];
+            ModEnabled.SettingChanged += onEnableDisable;
             order--;
-
-            base.Config.Bind<float>(MiscellaneousSettings.MaxMassDef, 1000f, new ConfigDescription("Set Max Vehicle Mass", null, new ConfigurationManagerAttributes { Order = order }));
+            base.Config.Bind<float>(MiscellaneousSettings.MaxMassDef, 250f, new ConfigDescription("Set Max Vehicle Mass", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MaxMass = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxMassDef];
+            MaxMass.SettingChanged += UpdateValues;
             order--;
-
-            base.Config.Bind<float>(MiscellaneousSettings.MinMassDef, 0.4f, new ConfigDescription("Set Min Vehicle Mass", null, new ConfigurationManagerAttributes { Order = order }));
+            base.Config.Bind<float>(MiscellaneousSettings.MinMassDef, 0.1f, new ConfigDescription("Set Min Vehicle Mass", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MinMass = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MinMassDef];
+            MinMass.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MaxSpeedDef, 100f, new ConfigDescription("Set Max Vehicle Speed", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MaxSpeed = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxSpeedDef];
+            MaxSpeed.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MinSpeedDef, 0f, new ConfigDescription("Set Min Vehicle Speed", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MinSpeed = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MinSpeedDef];
+            MinSpeed.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MaxAccelerationDef, 100f, new ConfigDescription("Set Max Vehicle Acceleration", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MaxAcceleration = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxAccelerationDef];
+            MaxAcceleration.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MinAccelerationDef, 0f, new ConfigDescription("Set Min Vehicle Acceleration", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MinAcceleration = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MinAccelerationDef];
+            MinAcceleration.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MaxHorsepowerDef, 100f, new ConfigDescription("Set Max Vehicle Horsepower", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MaxHorsepower = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxHorsepowerDef];
+            MaxHorsepower.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MinHorsepowerDef, 0f, new ConfigDescription("Set Min Vehicle Horsepower", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MinHorsepower = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MinHorsepowerDef];
+            MinHorsepower.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MaxBrakingIntensityDef, 100f, new ConfigDescription("Set Max Vehicle Braking Intensity", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MaxBrakingIntensity = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxBrakingIntensityDef];
+            MaxBrakingIntensity.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MinBrakingIntensityDef, 1f, new ConfigDescription("Set Min Vehicle Braking Intensity", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MinBrakingIntensity = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MinBrakingIntensityDef];
+            MinBrakingIntensity.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MaxShocksDef, 10f, new ConfigDescription("Set Max Shocks Multiplier", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MaxShocks = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxShocksDef];
+            MaxShocks.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MinShocksDef, 0.1f, new ConfigDescription("Set Min Shocks Multiplier", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MinShocks = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MinShocksDef];
+            MinShocks.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MinPlatformWidthDef, 1f, new ConfigDescription("Set Min Platform Width", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MinPlatformWidth = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MinPlatformWidthDef];
+            MinPlatformWidth.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MinWaterHeightDef, 0.25f, new ConfigDescription("Set Min Water Height", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MinWaterHeight = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MinWaterHeightDef];
+            MinWaterHeight.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MinWaterWidthDef, 0.05f, new ConfigDescription("Set Min Water Width", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MinWaterWidth = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MinWaterWidthDef];
+            MinWaterWidth.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MaxPillarHeightDef, 150, new ConfigDescription("Set Max Pillar Height", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MaxPillarHeight = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxPillarHeightDef];
+            MaxPillarHeight.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MinPillarHeightDef, 1f, new ConfigDescription("Set Min Pillar Height", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MinPillarHeight = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MinPillarHeightDef];
+            MinPillarHeight.SettingChanged += UpdateValues;
             order--;
-
             base.Config.Bind<float>(MiscellaneousSettings.MinFlagPoleHeightDef, 0.75f, new ConfigDescription("Set Min Flag Pole Height", null, new ConfigurationManagerAttributes { Order = order }));
             MiscellaneousSettings.MinFlagPoleHeight = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MinFlagPoleHeightDef];
+            MinFlagPoleHeight.SettingChanged += UpdateValues;
+            order--;
+            base.Config.Bind<float>(MiscellaneousSettings.MaxShapeMassDef, 500f, new ConfigDescription("Set Max Custom Shape Mass", null, new ConfigurationManagerAttributes { Order = order }));
+            MiscellaneousSettings.TrueMaxShapeMass = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxShapeMassDef];
+            TrueMaxShapeMass.SettingChanged += UpdateValues;
+            order--;
+            base.Config.Bind<float>(MiscellaneousSettings.MinShapeMassDef, 1f, new ConfigDescription("Set Min Custom Shape Mass", null, new ConfigurationManagerAttributes { Order = order }));
+            MiscellaneousSettings.TrueMinShapeMass = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MinShapeMassDef];
+            TrueMinShapeMass.SettingChanged += UpdateValues;
+            order--;
+            base.Config.Bind<float>(MiscellaneousSettings.MaxPinMotorStrengthDef, 1000f, new ConfigDescription("Set Max Static Pin Motor Strength", null, new ConfigurationManagerAttributes { Order = order }));
+            MiscellaneousSettings.MaxPinMotorStrength = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxPinMotorStrengthDef];
+            MaxPinMotorStrength.SettingChanged += UpdateValues;
+            order--;
+            base.Config.Bind<float>(MiscellaneousSettings.MaxPinTargetVelocityDef, 1000f, new ConfigDescription("Set Max Static Pin Target Velocity", null, new ConfigurationManagerAttributes { Order = order }));
+            MiscellaneousSettings.MaxPinTargetVelocity = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxPinTargetVelocityDef];
+            MaxPinTargetVelocity.SettingChanged += UpdateValues;
             order--;
 
-            //Can't figure out how to make this work, will un-comment if I ever get it working
-            //base.Config.Bind<float>(MiscellaneousSettings.MaxShapeMassDef, 500f, new ConfigDescription("Set Max Custom Shape Mass", null, new ConfigurationManagerAttributes { Order = order }));
-            //MiscellaneousSettings.TrueMaxShapeMass = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxShapeMassDef];
-            //order--;
-
-            //base.Config.Bind<float>(MiscellaneousSettings.MinShapeMassDef, 1f, new ConfigDescription("Set Min Custom Shape Mass", null, new ConfigurationManagerAttributes { Order = order }));
-            //MiscellaneousSettings.TrueMinShapeMass = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MinShapeMassDef];
-            //order--;
-
-            //base.Config.Bind<float>(MiscellaneousSettings.MaxPinMotorStrengthDef, 1000f, new ConfigDescription("Set Max Static Pin Motor Strength", null, new ConfigurationManagerAttributes { Order = order }));
-            //MiscellaneousSettings.MaxPinMotorStrength = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxPinMotorStrengthDef];
-            //order--;
-
-            //base.Config.Bind<float>(MiscellaneousSettings.MaxPinTargetVelocityDef, 1000f, new ConfigDescription("Set Max Static Pin Target Velocity", null, new ConfigurationManagerAttributes { Order = order }));
-            //MiscellaneousSettings.MaxPinTargetVelocity = (ConfigEntry<float>)base.Config[MiscellaneousSettings.MaxPinTargetVelocityDef];
-            //order--;
-
-            new Harmony("polytech.miscellaneous_settings").PatchAll(Assembly.GetExecutingAssembly());
-
+            this.repositoryUrl = "https://github.com/MasonatorRoblox/MiscellaneousSettingsMod/";
+            Harmony harmony = new Harmony("polytech.miscellaneous_settings");
+            harmony.PatchAll(Assembly.GetExecutingAssembly());
+            this.isEnabled = ModEnabled.Value;
             this.isCheat = false;
-
-            EnabledToggle.SettingChanged += onEnableDisable;
-
-            this.authors = new string[] {"Mason (MasonatorRoblox)"};
-
+            this.authors = new string[] {"Mason (Masonator)"};
             PolyTechMain.registerMod(this);
         }
 
-        public void onEnableDisable(object sender, EventArgs e)
+        private void onEnableDisable(object sender, EventArgs e)
         {
-            MiscellaneousSettings.UpdateValues();
-            this.isEnabled = EnabledToggle.Value;
-
-            if (EnabledToggle.Value)
-            {
-                enableMod();
-            }
-            else
-            {
-                disableMod();
-            }
+            if (ModEnabled.Value) enableMod();
+            else disableMod();
+            this.isEnabled = ModEnabled.Value;
         }
 
-        public override void enableMod() 
+        public override void enableMod()
         {
-            EnabledToggle.Value = true;
         }
 
-        public override void disableMod() 
-        {
-            EnabledToggle.Value = false;
-        }
+        public override void disableMod()
+		{			
+		}
 
-        public override string getSettings() { return ""; }
-        public override void setSettings(string settings) { }
-
-        internal static void UpdateValues()
+        internal static void UpdateValues(object sender, EventArgs e)
         {
-            bool flag = !MiscellaneousSettings.EnabledToggle.Value || !PolyTechMain.modEnabled.Value;
+            bool flag = !MiscellaneousSettings.ModEnabled.Value;
             if (flag)
             {
                 Vehicles.MAX_MASS = 1000f;
@@ -181,23 +156,25 @@ namespace MiscellaneousSettings
                 Pillars.MAX_HEIGHT = GameSettings.WorldMaxY() - 50f;
                 Pillars.MIN_HEIGHT = 1f;
                 VehicleStopTriggers.MIN_POLE_HEIGHT = 0.75f;
-                //CustomShapes.MAX_MASS = 2000f;
-                //CustomShapes.MIN_MASS = 4f;
-				//CustomShapes.MAX_PIN_MOTOR_STRENGTH = 1000f;
-				//CustomShapes.MAX_PIN_TARGET_VELOCITY = 1000f;
+                CustomShapes.MAX_MASS = 2000f;
+                CustomShapes.MIN_MASS = 4f;
+				CustomShapes.MAX_PIN_MOTOR_STRENGTH = 1000f;
+				CustomShapes.MAX_PIN_TARGET_VELOCITY = 1000f;
             }
             else
             {
                 if (MiscellaneousSettings.MaxMass.Value > MiscellaneousSettings.MinMass.Value)
                 {
-                    Vehicles.MAX_MASS = MiscellaneousSettings.MaxMass.Value;
-                    if (MiscellaneousSettings.MinMass.Value >= 0)
+                    Vehicles.MAX_MASS = MiscellaneousSettings.MaxMass.Value * 4;
+                    if ((MiscellaneousSettings.MinMass.Value >= 0) && (MiscellaneousSettings.MinMass.Value > MiscellaneousSettings.MaxMass.Value))
                     {
-                        Vehicles.MIN_MASS = MiscellaneousSettings.MinMass.Value;
+                        Vehicles.MIN_MASS = MiscellaneousSettings.MinMass.Value * 4;
                     }
                     else
                     {
                         MiscellaneousSettings.MinMass.Value = 0;
+                        if (MiscellaneousSettings.MinMass.Value < 0) PopUpWarning.Display($"ERROR: Minimum vehicle mass value {MiscellaneousSettings.MinMass.Value} is less than 0.");
+                        if (MiscellaneousSettings.MinMass.Value > MiscellaneousSettings.MaxMass.Value) PopUpWarning.Display($"ERROR: Minimum vehicle mass value {MiscellaneousSettings.MinMass.Value} is greater than \n maximum mass value {MiscellaneousSettings.MaxMass.Value}.");
                     }
                 }
                 if (MiscellaneousSettings.MaxSpeed.Value > MiscellaneousSettings.MinSpeed.Value && MiscellaneousSettings.MinSpeed.Value >= 0)
@@ -269,30 +246,44 @@ namespace MiscellaneousSettings
                     Pillars.MIN_HEIGHT = MiscellaneousSettings.MinPillarHeight.Value;
                 }
                 VehicleStopTriggers.MIN_POLE_HEIGHT = MiscellaneousSettings.MinFlagPoleHeight.Value;
-                //if (MiscellaneousSettings.TrueMaxShapeMass.Value > MiscellaneousSettings.TrueMinShapeMass.Value && MiscellaneousSettings.TrueMinShapeMass.Value >= 0)
-                //{
-                //    MiscellaneousSettings.__ReadMaxShapeMass = MiscellaneousSettings.TrueMaxShapeMass.Value * 4;
-                //    CustomShapes.MAX_MASS = MiscellaneousSettings.__ReadMaxShapeMass;
-                //    MiscellaneousSettings.__ReadMinShapeMass = MiscellaneousSettings.TrueMinShapeMass.Value * 4;
-                //    CustomShapes.MIN_MASS = MiscellaneousSettings.__ReadMinShapeMass;     
-                //}
-                //else
-                //{
-                //    MiscellaneousSettings.TrueMinShapeMass.Value = 0;
-                //}
-                //if (MiscellaneousSettings.MaxPinMotorStrength.Value >= 0)
-                //{
-                //    CustomShapes.MAX_PIN_MOTOR_STRENGTH = MiscellaneousSettings.MaxPinMotorStrength.Value;
-                //}
-                //if (MiscellaneousSettings.MaxPinTargetVelocity.Value >= 0)
-                //{
-                //    CustomShapes.MAX_PIN_TARGET_VELOCITY = MiscellaneousSettings.MaxPinTargetVelocity.Value;
-                //}
+                if (MiscellaneousSettings.TrueMaxShapeMass.Value > MiscellaneousSettings.TrueMinShapeMass.Value && MiscellaneousSettings.TrueMinShapeMass.Value >= 0)
+                {
+                    MiscellaneousSettings.__ReadMaxShapeMass = MiscellaneousSettings.TrueMaxShapeMass.Value * 4;
+                    CustomShapes.MAX_MASS = MiscellaneousSettings.__ReadMaxShapeMass;
+                    MiscellaneousSettings.__ReadMinShapeMass = MiscellaneousSettings.TrueMinShapeMass.Value * 4;
+                    CustomShapes.MIN_MASS = MiscellaneousSettings.__ReadMinShapeMass;     
+                }
+                else
+                {
+                    MiscellaneousSettings.TrueMinShapeMass.Value = 0;
+                }
+                if (MiscellaneousSettings.MaxPinMotorStrength.Value >= 0)
+                {
+                    CustomShapes.MAX_PIN_MOTOR_STRENGTH = MiscellaneousSettings.MaxPinMotorStrength.Value;
+                }
+                if (MiscellaneousSettings.MaxPinTargetVelocity.Value >= 0)
+                {
+                    CustomShapes.MAX_PIN_TARGET_VELOCITY = MiscellaneousSettings.MaxPinTargetVelocity.Value;
+                }
             }
         }
+
+        /*
+        [HarmonyPatch(typeof(GameSettings))]
+        public static class PatchBookendSeparation
+        {
+            public static void Postfix(GameSettings __instance)
+            {
+                if (!MiscellaneousSettings.ModEnabled.Value)
+                {
+                    __instance.m_WorldWidth = 350;
+                }
+                else __instance.m_WorldWidth = WorldWidth.Value + 100;
+            }
+        }*/
         //Stuff at the end I guess
-        public static ConfigDefinition EnabledToggleDef = new ConfigDefinition("Enable/Disable", "Enable/Disable");
-        public static ConfigEntry<bool> EnabledToggle;
+        public static ConfigDefinition ModEnabledDef = new ConfigDefinition("Enable/Disable", "Enable/Disable");
+        public static ConfigEntry<bool> ModEnabled;
         public static ConfigDefinition MaxMassDef = new ConfigDefinition("Vehicles", "Max Mass");
         public static ConfigEntry<float> MaxMass;
         public static ConfigDefinition MinMassDef = new ConfigDefinition("Vehicles", "Min Mass");
@@ -329,16 +320,16 @@ namespace MiscellaneousSettings
         public static ConfigEntry<float> MinPillarHeight;
         public static ConfigDefinition MinFlagPoleHeightDef = new ConfigDefinition("Flags", "Min Flag Pole Height");
         public static ConfigEntry<float> MinFlagPoleHeight;
-        //public static ConfigDefinition MaxShapeMassDef = new ConfigDefinition("Custom Shapes", "Max Custom Shape Mass");
-        //public static ConfigEntry<float> TrueMaxShapeMass;
-        //public static float __ReadMaxShapeMass;
-        //public static ConfigDefinition MinShapeMassDef = new ConfigDefinition("Custom Shapes", "Min Custom Shape Mass");
-        //public static ConfigEntry<float> TrueMinShapeMass;
-        //public static float __ReadMinShapeMass;
-        //public static ConfigDefinition MaxPinMotorStrengthDef = new ConfigDefinition("Custom Shapes", "Max Static Pin Motor Strength");
-        //public static ConfigEntry<float> MaxPinMotorStrength;
-        //public static ConfigDefinition MaxPinTargetVelocityDef = new ConfigDefinition("Custom Shapes", "Max Static Pin Target Velocity");
-        //public static ConfigEntry<float> MaxPinTargetVelocity;
+        public static ConfigDefinition MaxShapeMassDef = new ConfigDefinition("Custom Shapes", "Max Custom Shape Mass");
+        public static ConfigEntry<float> TrueMaxShapeMass;
+        public static float __ReadMaxShapeMass;
+        public static ConfigDefinition MinShapeMassDef = new ConfigDefinition("Custom Shapes", "Min Custom Shape Mass");
+        public static ConfigEntry<float> TrueMinShapeMass;
+        public static float __ReadMinShapeMass;
+        public static ConfigDefinition MaxPinMotorStrengthDef = new ConfigDefinition("Custom Shapes", "Max Static Pin Motor Strength");
+        public static ConfigEntry<float> MaxPinMotorStrength;
+        public static ConfigDefinition MaxPinTargetVelocityDef = new ConfigDefinition("Custom Shapes", "Max Static Pin Target Velocity");
+        public static ConfigEntry<float> MaxPinTargetVelocity;
 
         #pragma warning disable 0169, 0414, 0649
         internal sealed class ConfigurationManagerAttributes
