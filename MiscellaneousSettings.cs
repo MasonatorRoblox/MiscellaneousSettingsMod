@@ -174,7 +174,7 @@ namespace MiscellaneousSettings
                     {
                         MiscellaneousSettings.MinMass.Value = 0;
                         if (MiscellaneousSettings.MinMass.Value < 0) PopUpWarning.Display($"ERROR: Minimum vehicle mass value {MiscellaneousSettings.MinMass.Value} is less than 0.");
-                        if (MiscellaneousSettings.MinMass.Value > MiscellaneousSettings.MaxMass.Value) PopUpWarning.Display($"ERROR: Minimum vehicle mass value {MiscellaneousSettings.MinMass.Value} is greater than \n maximum mass value {MiscellaneousSettings.MaxMass.Value}.");
+                        if (MiscellaneousSettings.MinMass.Value > MiscellaneousSettings.MaxMass.Value) PopUpWarning.Display($"ERROR: Minimum vehicle mass value {MiscellaneousSettings.MinMass.Value} is greater than maximum mass value {MiscellaneousSettings.MaxMass.Value}.");
                     }
                 }
                 if (MiscellaneousSettings.MaxSpeed.Value > MiscellaneousSettings.MinSpeed.Value && MiscellaneousSettings.MinSpeed.Value >= 0)
@@ -187,6 +187,8 @@ namespace MiscellaneousSettings
                     else
                     {
                         MiscellaneousSettings.MinSpeed.Value = 0;
+                        if (MiscellaneousSettings.MinSpeed.Value < 0) PopUpWarning.Display($"ERROR: Minimum vehicle speed value {MiscellaneousSettings.MinSpeed.Value} is less than 0.");
+                        if (MiscellaneousSettings.MinSpeed.Value > MiscellaneousSettings.MaxSpeed.Value) PopUpWarning.Display($"ERROR: Minimum vehicle speed value {MiscellaneousSettings.MinSpeed.Value} is greater than maximum speed value {MiscellaneousSettings.MaxSpeed.Value}.");
                     }
                 }
                 if (MiscellaneousSettings.MaxAcceleration.Value > MiscellaneousSettings.MinAcceleration.Value)
@@ -199,6 +201,8 @@ namespace MiscellaneousSettings
                     else
                     {
                         MiscellaneousSettings.MinAcceleration.Value = 0;
+                        if (MiscellaneousSettings.MinAcceleration.Value < 0) PopUpWarning.Display($"ERROR: Minimum vehicle acceleration value {MiscellaneousSettings.MinAcceleration.Value} is less than 0.");
+                        if (MiscellaneousSettings.MinAcceleration.Value > MiscellaneousSettings.MaxAcceleration.Value) PopUpWarning.Display($"ERROR: Minimum vehicle acceleration value {MiscellaneousSettings.MinAcceleration.Value} is greater than maximum acceleration value {MiscellaneousSettings.MaxAcceleration.Value}.");
                     }
                 }
                 if (MiscellaneousSettings.MaxHorsepower.Value > MiscellaneousSettings.MinHorsepower.Value)
@@ -211,6 +215,8 @@ namespace MiscellaneousSettings
                     else
                     {
                         MiscellaneousSettings.MinHorsepower.Value = 0;
+                        if (MiscellaneousSettings.MinHorsepower.Value < 0) PopUpWarning.Display($"ERROR: Minimum vehicle horsepower value {MiscellaneousSettings.MinHorsepower.Value} is less than 0.");
+                        if (MiscellaneousSettings.MinHorsepower.Value > MiscellaneousSettings.MaxHorsepower.Value) PopUpWarning.Display($"ERROR: Minimum vehicle horsepower value {MiscellaneousSettings.MinHorsepower.Value} is greater than maximum horsepower value {MiscellaneousSettings.MaxSpeed.Value}.");
                     }
                 }
                 if (MiscellaneousSettings.MaxBrakingIntensity.Value > MiscellaneousSettings.MinBrakingIntensity.Value)
@@ -223,6 +229,8 @@ namespace MiscellaneousSettings
                     else
                     {
                         MiscellaneousSettings.MinBrakingIntensity.Value = 0;
+                        if (MiscellaneousSettings.MinBrakingIntensity.Value < 0) PopUpWarning.Display($"ERROR: Minimum vehicle braking intensity value {MiscellaneousSettings.MinBrakingIntensity.Value} is less than 0.");
+                        if (MiscellaneousSettings.MinBrakingIntensity.Value > MiscellaneousSettings.MaxBrakingIntensity.Value) PopUpWarning.Display($"ERROR: Minimum vehicle braking intensity value {MiscellaneousSettings.MinBrakingIntensity.Value} is greater than maximum braking intensity value {MiscellaneousSettings.MaxBrakingIntensity.Value}.");
                     }
                 }
                 if (MiscellaneousSettings.MaxShocks.Value > MiscellaneousSettings.MinShocks.Value)
@@ -235,6 +243,8 @@ namespace MiscellaneousSettings
                     else
                     {
                         MiscellaneousSettings.MinShocks.Value = 0;
+                        if (MiscellaneousSettings.MinShocks.Value < 0) PopUpWarning.Display($"ERROR: Minimum vehicle shocks value {MiscellaneousSettings.MinShocks.Value} is less than 0.");
+                        if (MiscellaneousSettings.MinShocks.Value > MiscellaneousSettings.MaxShocks.Value) PopUpWarning.Display($"ERROR: Minimum vehicle shocks value {MiscellaneousSettings.MinShocks.Value} is greater than maximum shocks value {MiscellaneousSettings.MaxShocks.Value}.");
                     }
                 }
                 Platforms.MIN_WIDTH = MiscellaneousSettings.MinPlatformWidth.Value;
@@ -256,6 +266,8 @@ namespace MiscellaneousSettings
                 else
                 {
                     MiscellaneousSettings.TrueMinShapeMass.Value = 0;
+                    if (MiscellaneousSettings.TrueMinShapeMass.Value < 0) PopUpWarning.Display($"ERROR: Minimum shape mass value {MiscellaneousSettings.TrueMinShapeMass.Value} is less than 0.");
+                        if (MiscellaneousSettings.TrueMinShapeMass.Value > MiscellaneousSettings.MaxSpeed.Value) PopUpWarning.Display($"ERROR: Minimum shape mass value {MiscellaneousSettings.TrueMinShapeMass.Value} is greater than maximum shape mass value {MiscellaneousSettings.TrueMaxShapeMass.Value}.");
                 }
                 if (MiscellaneousSettings.MaxPinMotorStrength.Value >= 0)
                 {
