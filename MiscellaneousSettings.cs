@@ -7,7 +7,7 @@ using PolyTechFramework;
 
 namespace MiscellaneousSettings
 {
-    [BepInPlugin("polytech.miscellaneous_settings", "Miscellaneous Settings Mod", "1.2.1")]
+    [BepInPlugin("polytech.miscellaneous_settings", "Miscellaneous Settings Mod", "1.3.0")]
     [BepInProcess("Poly Bridge 2")]
     [BepInDependency(PolyTechMain.PluginGuid, BepInDependency.DependencyFlags.HardDependency)]
     public class MiscellaneousSettings : PolyTechMod
